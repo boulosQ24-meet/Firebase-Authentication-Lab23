@@ -7,17 +7,17 @@ app.config['SECRET_KEY'] = 'super-secret-key'
 
 
 Config = {
-  "apiKey": "AIzaSyCvXSClwtv85sbJgxNJq1Gt9yXPWIdSmbY",
-  "authDomain": "meettesty2boulos.firebaseapp.com",
-  "projectId": "meettesty2boulos",
-  "storageBucket": "meettesty2boulos.appspot.com",
-  "messagingSenderId": "997430567535",
-  "appId": "1:997430567535:web:8d762221f7e033c7d8e39a",
-  "measurementId": "G-MH1LKJHK9P"
-   "databaseURL": ""
+    "apiKey": "AIzaSyCvXSClwtv85sbJgxNJq1Gt9yXPWIdSmbY",
+    "authDomain": "meettesty2boulos.firebaseapp.com",
+    "projectId": "meettesty2boulos",
+    "storageBucket": "meettesty2boulos.appspot.com",
+    "messagingSenderId": "997430567535",
+    "appId": "1:997430567535:web:8d762221f7e033c7d8e39a",
+    "measurementId": "G-MH1LKJHK9P",
+    "databaseURL": ""
 }
 
-firebase = pyrebase.initialize_app(config)
+firebase = pyrebase.initialize_app(Config)
 auth = firebase.auth()
 
 
@@ -25,15 +25,27 @@ auth = firebase.auth()
 
 @app.route('/', methods=['GET', 'POST'])
 def signin():
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
+        try:
+            login_session['user'] = auth.sign_in_with_email_and_password('email', 'password')
+            return redirect(url_for('add_tweet'))
+        except:
+            error = "error habibi"
     return render_template("signin.html")
 
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
-    if request.methods == "POST":
+    if request.method == "POST":
+        email = request.form['email']
+        password = request.form['password']
         try:
-            email = request.form['email']
-            password = request.form['password']
+            login_session['user'] = auth.create_user_with_email_and_password('email', 'password')
+            return redirect(url_for('add_tweet'))
+        except:
+            error = "error habibi"
     return render_template("signup.html")
 
 
