@@ -19,7 +19,7 @@ Config = {
 
 firebase = pyrebase.initialize_app(Config)
 auth = firebase.auth()
-
+db = firebase.database()
 
 
 
@@ -43,18 +43,42 @@ def signup():
     if request.method == "POST":
         email = request.form['email']
         password = request.form['password']
+        username = request.form['username']
+        fullname = request.form['fullname']
         try:
             login_session['user'] = auth.create_user_with_email_and_password(email, password)
+            
+            UID = login_session['user']['localId']
+            user = {"name": fullname,"user_name": username, "email": email}
+            db.child("Users").child(UID).push(user)
+
             return redirect(url_for('add_tweet'))
         except:
             error = "error habibi"
+
+
     return render_template("signup.html")
 
 
 @app.route('/add_tweet', methods=['GET', 'POST'])
 def add_tweet():
+    error=""
+    if request.method == 'POST':
+        title = request.form['tweet_title']
+        description = request.form['tweet_describtion']
+        try:
+            UID = login_session['user']['localId']
+            tweet= {'title': title, 'description': description}
+            db.child('Tweets').push(tweet)
+        except:
+            error="error habibi"
+
     return render_template("add_tweet.html")
 
+@app.route('/all_tweets', methods = ['GET', 'POST'])
+def all_tweets():
+    tweets = db.child('Tweets').get().val()
+    return  render_template('tweets.html', tweets = tweets)
 
 if __name__ == '__main__':
     app.run(debug=True)
